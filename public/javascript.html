@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Chat App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <style>
+    form {
+      padding: 20px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      padding-right: 50px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <ul id="messages"></ul>
+    </div>
+    <div class="row">
+      <div class="col-lg-6">
+        <form id="form" action="">
+          <div class="input-group">
+            <input id="m" autocomplete="off" type="text" class="form-control" placeholder="Message..."
+              aria-label="Message ...">
+            <span class="input-group-btn">
+              <button class="btn btn-secondary" type="submit">Send</button>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const room = 'javascript';
+    const socket = io('/tech');
+    const form = document.getElementById('form')
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let msg = document.getElementById('m').value
+      socket.emit('message', { msg, room });
+      document.getElementById('m').value = "";
+      return false;
+    })
+
+    socket.on('connect', () => {
+      // emitting to everybody
+      socket.emit('join', { room })
+    })
+
+    socket.addEventListener('message', (msg) => {
+      var newLi = document.createElement('li')
+      var ul = document.querySelector('#messages')
+      var li = document.createElement("li");
+      li.appendChild(document.createTextNode(msg));
+      ul.appendChild(li);
+      // document.querySelector('#messages').insertAdjacentHTML("beforeend", document.querySelector('<li>').text(msg));
+    })
+  </script>
+</body>
+
+</html>
